@@ -1,5 +1,13 @@
 #include "Pin.h"
 #include "GPIOSystem.h"
+#include <sstream>
+#include <fstream>
+#include <unistd.h>
+#include <algorithm>
+
+#define PATH_ADC "/sys/bus/iio/devices/iio:device0/in_voltage"
+
+using namespace std;
 
 int readAnalog(int number){
    stringstream ss;
@@ -13,7 +21,6 @@ int readAnalog(int number){
 
 void bbb_joystick_read(char & direction, bool & photo, bool & button) {
    int potentiomer_value;
-   int photo_value;
    Pin pin_button {"P9_27", GPIOSystem::Direction::IN, GPIOSystem::Value::LOW};
 
    while (true) {

@@ -8,6 +8,8 @@
 #include "Components.h"
 #include <cstdlib>
 #include <iostream>
+#include "bbb_joystick.cpp"
+#include <thread>
 
 
 /** \brief Function that print on stdscr start messge */
@@ -48,11 +50,30 @@ int main ()
 
    // GAME LOOP:
    // (1.a)..GET A COMMAND______(1.b)..PARSE COMMAND______(2.a)..MOVE BULLIST______(2.b)..MOVE ENEMIES______(3.a-b)..CHECK COLLISION______(4)..GENERATE ENEMIES______(5)..PRINT
+   
+   char r_direction = 's';
+   bool photo, button;
+
+   std::thread t (bbb_joystick_read, ref(r_direction), ref(photo), ref(button));
+
    while (!end)
    {
       // ..(1.a)..
-      direction= getch ();
+      //direction= getch ();
 
+	  if (r_direction == 'l') {
+	    game->moveLeft (1);
+	  }	else if (r_direction == 'r') {
+	    game->moveRight (1);
+	  }  
+	
+	  if (photo) 
+	    game->shoot();
+	
+	  if (button)
+		end=TRUE;
+	
+	/*
       // ..(1.b)..
       switch (direction)
       {
@@ -70,7 +91,7 @@ int main ()
 	    break ;
 	 case (int) 'p':
 	    break;
-      }
+      }*/
 
       // ..(2.a)..
       game->moveBullet ();

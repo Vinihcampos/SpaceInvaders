@@ -1,7 +1,7 @@
 ## COMPILER
 CC= g++ -std=c++11
 ## COMPILER OPTIONS
-CFLAGS= -Wall -pedantic -O3 -g
+CFLAGS= -Wall -pedantic -O3 -g -pthread
 ## LINKING OPTIONS
 LINKING= -lncurses -l$(LIBNAME) -L $(LIBDIR)
 ## MAIN
