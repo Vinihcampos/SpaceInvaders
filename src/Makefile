@@ -1,5 +1,5 @@
 ## COMPILER
-CC= g++
+CC= g++ -std=c++11
 ## COMPILER OPTIONS
 CFLAGS= -Wall -pedantic -O3 -g
 ## LINKING OPTIONS
@@ -7,7 +7,7 @@ LINKING= -lncurses -l$(LIBNAME) -L $(LIBDIR)
 ## MAIN
 MAINFILE= main.cpp
 ## OBJECT FILES
-OBJECT FILES= cannon.o bullet.o bullist.o enelist.o enemy.o game.o
+OBJECT_FILES= cannon.o bullet.o bullist.o enelist.o enemy.o game.o Pin.o GPIOSystem.o
 ## LIBRARY'S NAME
 LIBNAME= SpaceInvaders
 ## LIBRARY'S DIRECTORY 
@@ -72,11 +72,21 @@ enemy.o: enemy.cpp $(HEADERNAME)
 	$(CC) $(CFLAGS) -c $<
 	cp $@ $(EXEDIR)
 
+Pin.o: Pin.cpp $(HEADERNAME)
+	@echo "***** Creo Pin.o *****"
+	$(CC) $(CFLAGS) -c $<
+	cp $@ $(EXEDIR)
+
+GPIOSystem.o: GPIOSystem.cpp $(HEADERNAME)
+	@echo "***** Creo GPIOSystem.o *****"
+	$(CC) $(CFLAGS) -c $<
+	cp $@ $(EXEDIR)
+
 ## Building libray
 lib:
 	make $(LIBDIR)/$(LIBFILE)
 
-$(LIBDIR)/$(LIBFILE): $(OBJECT FILES)
+$(LIBDIR)/$(LIBFILE): $(OBJECT_FILES)
 	@echo "\n**** Creo la libreria ****"
 	ar -r $(LIBFILE) $^
 	cp $(LIBFILE) $(HEADERNAME) $(LIBDIR)
