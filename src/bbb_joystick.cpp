@@ -29,8 +29,8 @@ void bbb_joystick_read(char & direction, bool & photo, bool & button) {
         usleep(50000);
 		// Set Directions
         if (abs(readAnalog(1) - potentiomer_value) > 10) {
-                if (readAnalog(1) - potentiomer_value > 0) direction = 'l';
-                else if (readAnalog(1) - potentiomer_value < 0) direction = 'r';
+                if (readAnalog(1) - potentiomer_value > 300) direction = 'l';
+                else if (readAnalog(1) - potentiomer_value < -300) direction = 'r';
         } else direction = 's';
         if (abs(potentiomer_value - 4096) <= 3) direction = 'l';
         else if (potentiomer_value <= 7) direction = 'r';
