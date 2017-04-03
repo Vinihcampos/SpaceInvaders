@@ -10,6 +10,7 @@
 #include <iostream>
 #include "bbb_joystick.cpp"
 #include <thread>
+#include <pthread.h>
 
 
 /** \brief Function that print on stdscr start messge */
@@ -62,7 +63,7 @@ void game_loop(game_t * & game, char & r_direction, bool & photo, bool & button,
 
       // ..(5).. print on stdscr and refresh
       game->print ();
-      r_direction = 's';
+      //r_direction = 's';
       //direction=0;
       refresh ();
    }
@@ -107,11 +108,78 @@ int main ()
    char r_direction = 's';
    bool photo, button;
 
-   std::thread t1 (bbb_joystick_read, ref(r_direction), ref(photo), ref(button));
-   std::thread t2 (game_loop, ref(game), ref(r_direction), ref(photo), ref(button), ref(end));
+   std::thread tpot(bbb_potentiometer, ref(r_direction));
+   sched_param tpot_sparams;
+   tpot_sparams.sched_priority = 30;
+   pthread_setschedparam(tpot.native_handle(), SCHED_RR, &tpot_sparams);   
 
-   t1.join();
-   t2.join();
+   std::thread tldr(bbb_ldr, ref(photo));
+   sched_param tldr_sparams;
+   tldr_sparams.sched_priority = 15;
+   pthread_setschedparam(tldr.native_handle(), SCHED_RR, &tldr_sparams);   
+
+   std::thread tbutton(bbb_button, ref(button));
+   sched_param tbutton_sparams;
+   tbutton_sparams.sched_priority = 10;
+   pthread_setschedparam(tbutton.native_handle(), SCHED_RR, &tbutton_sparams);   
+/*
+   std::thread tgame (game_loop, ref(game), ref(r_direction), ref(photo), ref(button), ref(end));
+   sched_param tgame_sparams;
+   tgame_sparams.sched_priority = 5;
+   pthread_setschedparam(tgame.native_handle(), SCHED_FIFO, &tgame_sparams);   
+*/
+   while (!end) {
+      // ..(1.a)..
+      //direction= getch ();
+
+	  if (r_direction == 'l') {
+	    game->moveLeft (1);
+	  }	else if (r_direction == 'r') {
+	    game->moveRight (1);
+	  }  
+	
+	  if (photo) 
+	    game->shoot();
+	
+	  if (button)
+		end=TRUE;
+
+      // ..(2.a)..
+      game->moveBullet ();
+      // ..(2.b)..
+      game->moveEnemies ();
+
+      // ..(3.a)..
+      // Check if there are collision between bullets and enemies and, possibly, manages them
+      game->checkCollision ();
+
+      // ..(3.b)..
+      // Check if there are collision between enemies and cannon
+      if (game->checkCannonCollision ())
+      {
+		 erase ();
+		 mvprintw (20, 20, "************** SEI MORTO!!!!!! **************");
+		 refresh ();
+		 napms (3000);
+		 end=TRUE;
+      }
+      
+      // ..(4)..
+      if ((rand() % 19813)==0)
+	 // I create new enemy
+	 game->addEnemy (((rand ())%(COLS)), 1, ((rand())%4));
+      
+
+      // ..(5).. print on stdscr and refresh
+      game->print ();
+      //r_direction = 's';
+      //direction=0;
+      refresh ();
+   }
+
+   tpot.join();
+   tldr.join();
+   tbutton.join();
 
    endwin ();
    return 0;

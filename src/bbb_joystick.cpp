@@ -19,24 +19,34 @@ int readAnalog(int number){
    return number;
 }
 
-void bbb_joystick_read(char & direction, bool & photo, bool & button) {
-   int potentiomer_value;
-   Pin pin_button {"P9_27", GPIOSystem::Direction::IN, GPIOSystem::Value::LOW};
-
-   while (true) {
-		// Read values
-        potentiomer_value = readAnalog(1);
-        usleep(50000);
+void bbb_potentiometer(char & direction) {
+	int potentiomer_value = 0;
+	while (true) {
+		usleep(100000);
+		potentiomer_value = readAnalog(1);
+		usleep(50000);
 		// Set Directions
-        if (abs(readAnalog(1) - potentiomer_value) > 10) {
-                if (readAnalog(1) - potentiomer_value > 300) direction = 'l';
-                else if (readAnalog(1) - potentiomer_value < -300) direction = 'r';
-        } else direction = 's';
-        if (abs(potentiomer_value - 4096) <= 3) direction = 'l';
-        else if (potentiomer_value <= 7) direction = 'r';
-		// Set shot
-	    photo = (readAnalog(3) <= 35);
-		// Set button
-		button = (pin_button.getValue() == GPIOSystem::Value::HIGH);	
+		if (abs(readAnalog(1) - potentiomer_value) > 10) {
+			if (readAnalog(1) - potentiomer_value > 300) direction = 'l';
+			else if (readAnalog(1) - potentiomer_value < -300) direction = 'r';
+		} else direction = 's';
+		if (abs(potentiomer_value - 4096) <= 3) direction = 'l';
+		else if (potentiomer_value <= 7) direction = 'r';
+	}
+}
+
+void bbb_ldr(bool & photo) {
+	while(true) {
+		usleep(100000);
+		photo = (readAnalog(3) <= 35);
+	}
+}
+
+void bbb_button(bool & button) {
+   Pin pin_button {"P9_27", GPIOSystem::Direction::IN, GPIOSystem::Value::LOW};
+   while (true) {
+	usleep(100000);
+	// Set button
+	button = (pin_button.getValue() == GPIOSystem::Value::HIGH);	
    }
 }
