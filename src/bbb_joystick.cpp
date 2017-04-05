@@ -27,26 +27,26 @@ void bbb_potentiometer(char & direction) {
 		usleep(50000);
 		// Set Directions
 		if (abs(readAnalog(1) - potentiomer_value) > 10) {
-			if (readAnalog(1) - potentiomer_value > 300) direction = 'l';
-			else if (readAnalog(1) - potentiomer_value < -300) direction = 'r';
+			if (readAnalog(1) - potentiomer_value > 10) direction = 'l';
+			else if (readAnalog(1) - potentiomer_value < -10) direction = 'r';
 		} else direction = 's';
 		if (abs(potentiomer_value - 4096) <= 3) direction = 'l';
 		else if (potentiomer_value <= 7) direction = 'r';
 	}
 }
 
-void bbb_ldr(bool & photo) {
+void bbb_ldr(bool & photo, char & direction) {
 	while(true) {
 		usleep(100000);
-		photo = (readAnalog(3) <= 35);
+		photo = (readAnalog(3) <= 35 && direction == 's');
 	}
 }
 
-void bbb_button(bool & button) {
+void bbb_button(bool & button, char & direction, bool & ldr) {
    Pin pin_button {"P9_27", GPIOSystem::Direction::IN, GPIOSystem::Value::LOW};
    while (true) {
 	usleep(100000);
 	// Set button
-	button = (pin_button.getValue() == GPIOSystem::Value::HIGH);	
+	button = (pin_button.getValue() == GPIOSystem::Value::HIGH && direction == 's' && !ldr);	
    }
 }

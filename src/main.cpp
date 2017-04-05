@@ -108,30 +108,32 @@ int main ()
    char r_direction = 's';
    bool photo, button;
 
-   std::thread tpot(bbb_potentiometer, ref(r_direction));
-   sched_param tpot_sparams;
-   tpot_sparams.sched_priority = 30;
-   pthread_setschedparam(tpot.native_handle(), SCHED_RR, &tpot_sparams);   
-
-   std::thread tldr(bbb_ldr, ref(photo));
-   sched_param tldr_sparams;
-   tldr_sparams.sched_priority = 15;
-   pthread_setschedparam(tldr.native_handle(), SCHED_RR, &tldr_sparams);   
-
-   std::thread tbutton(bbb_button, ref(button));
-   sched_param tbutton_sparams;
-   tbutton_sparams.sched_priority = 10;
-   pthread_setschedparam(tbutton.native_handle(), SCHED_RR, &tbutton_sparams);   
 /*
    std::thread tgame (game_loop, ref(game), ref(r_direction), ref(photo), ref(button), ref(end));
    sched_param tgame_sparams;
    tgame_sparams.sched_priority = 5;
    pthread_setschedparam(tgame.native_handle(), SCHED_FIFO, &tgame_sparams);   
 */
+
+   std::thread tpot(bbb_potentiometer, ref(r_direction));
+   sched_param tpot_sparams;
+   tpot_sparams.sched_priority = 30;
+   pthread_setschedparam(tpot.native_handle(), SCHED_RR, &tpot_sparams);   
+
+   std::thread tldr(bbb_ldr, ref(photo), ref(r_direction));
+   sched_param tldr_sparams;
+   tldr_sparams.sched_priority = 15;
+   pthread_setschedparam(tldr.native_handle(), SCHED_RR, &tldr_sparams);   
+
+   std::thread tbutton(bbb_button, ref(button), ref(r_direction), ref(photo));
+   sched_param tbutton_sparams;
+   tbutton_sparams.sched_priority = 10;
+   pthread_setschedparam(tbutton.native_handle(), SCHED_RR, &tbutton_sparams);   
+
+
    while (!end) {
       // ..(1.a)..
       //direction= getch ();
-
 	  if (r_direction == 'l') {
 	    game->moveLeft (1);
 	  }	else if (r_direction == 'r') {
@@ -140,7 +142,7 @@ int main ()
 	
 	  if (photo) 
 	    game->shoot();
-	
+
 	  if (button)
 		end=TRUE;
 
