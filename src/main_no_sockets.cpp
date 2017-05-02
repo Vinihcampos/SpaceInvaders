@@ -11,16 +11,7 @@
 #include "bbb_joystick.cpp"
 #include <thread>
 #include <pthread.h>
-#include <netinet/in.h> //htons
-#include <arpa/inet.h>  //inet_addr
-#include <cstdio>       //printf
-#include <sys/socket.h> //socket
-#include <unistd.h>     //close
-#include <cstring>      //memset
 
-#define MAXMSG 1024
-#define MAXNAME 100
-#define PORTNUM 4325
 
 /** \brief Function that print on stdscr start messge */
 void startMessage ();
@@ -71,71 +62,6 @@ void game_loop(game_t * & game, char & r_direction, bool & photo, bool & button,
 /** \brief Main function of game */
 int main ()
 {
-
-   //variáveis do servidor
-   struct sockaddr_in endereco;
-   int socketId;
-
-   //variáveis relacionadas com as conexões clientes
-   struct sockaddr_in enderecoCliente;
-   socklen_t tamanhoEnderecoCliente = sizeof(struct sockaddr);
-   int conexaoClienteId;
-
-   //mensagem enviada pelo cliente
-   //Mensagem mensagem;
-   std::string mensagem;
-
-   /*
-    * Configurações do endereço
-   */
-   memset(&endereco, 0, sizeof(endereco));
-   endereco.sin_family = AF_INET;
-   endereco.sin_port = htons(PORTNUM);
-   //endereco.sin_addr.s_addr = INADDR_ANY;
-   endereco.sin_addr.s_addr = inet_addr("10.7.120.17");
-
-   /*
-    * Criando o Socket
-    *
-    * PARAM1: AF_INET ou AF_INET6 (IPV4 ou IPV6)
-    * PARAM2: SOCK_STREAM ou SOCK_DGRAM
-    * PARAM3: protocolo (IP, UDP, TCP, etc). Valor 0 escolhe automaticamente
-   */
-   socketId = socket(AF_INET, SOCK_STREAM, 0);
-
-   //Verificar erros
-   if (socketId == -1)
-   {
-       printf("Falha ao executar socket()\n");
-       exit(EXIT_FAILURE);
-   }
-
-   printf("Aguardando conexão do cliente...\n");
-   //Conectando o socket a uma porta. Executado apenas no lado servidor
-   while ( bind (socketId, (struct sockaddr *)&endereco, sizeof(struct sockaddr)) == -1 )
-   {
-       //printf("Falha ao executar bind()\n");
-       //exit(EXIT_FAILURE);
-   }
-
-   //Habilitando o servidor a receber conexoes do cliente
-   if ( listen( socketId, 10 ) == -1)
-   {
-       printf("Falha ao executar listen()\n");
-       exit(EXIT_FAILURE);
-   }
-
-   printf("Servidor: esperando conexões clientes\n");
-
-   //Servidor fica bloqueado esperando uma conexão do cliente
-   conexaoClienteId = accept( socketId,(struct sockaddr *) &enderecoCliente,&tamanhoEnderecoCliente );   
-
-   printf("Servidor: recebeu conexão de %s, que comecem os jogos!\n", inet_ntoa(enderecoCliente.sin_addr));
-
-
-
-
-
    int direction;
    bool end= FALSE;
 
