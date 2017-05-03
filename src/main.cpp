@@ -27,7 +27,7 @@
 void startMessage ();
 
 //void socketHandler(int socketDescriptor,Mensagem mensagem)
-void socketHandler(int socketDescriptor, std::string mensagem, bool & controlChanged)
+void socketHandler(int socketDescriptor, std::string & mensagem, bool & controlChanged)
 {
     int byteslidos;
 
@@ -119,7 +119,7 @@ int main ()
 
    //mensagem enviada pelo cliente
    //Mensagem mensagem;
-   std::string mensagem;
+   std::string mensagem = "s 0 0";
 
    /*
     * Configurações do endereço
