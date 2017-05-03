@@ -7,6 +7,7 @@
 #include "./SpaceInvaders.h"
 #include "Components.h"
 #include <cstdlib>
+#include <sstream>
 #include <iostream>
 #include "bbb_joystick.cpp"
 #include <thread>
@@ -24,6 +25,41 @@
 
 /** \brief Function that print on stdscr start messge */
 void startMessage ();
+
+//void socketHandler(int socketDescriptor,Mensagem mensagem)
+void socketHandler(int socketDescriptor, std::string mensagem, bool & controlChanged)
+{
+    int byteslidos;
+
+    //Verificando erros
+    if ( socketDescriptor == -1)
+    {
+        printf("Falha ao executar accept()");
+        exit(EXIT_FAILURE);
+    }
+
+    //receber uma msg do cliente
+    //printf("Servidor vai ficar esperando uma mensagem\n");
+    byteslidos = recv(socketDescriptor,&mensagem,sizeof(mensagem),0);
+
+    //printf("byteslidos: %d\n", byteslidos);
+
+    if (byteslidos == -1)
+    {
+        printf("Falha ao executar recv()");
+        //exit(EXIT_FAILURE);
+    }
+    else if (byteslidos == 0)
+    {
+        printf("Cliente finalizou a conexão\n");
+        exit(EXIT_SUCCESS);
+    }
+
+	controlChanged = true;
+    //printf("Servidor recebeu a seguinte msg do cliente [%s:%d]: %s \n",mensagem.nome,mensagem.idade,mensagem.msg);
+
+    //close(socketDescriptor);
+}
 
 void game_loop(game_t * & game, char & r_direction, bool & photo, bool & button, bool & end) {
 	  if (r_direction == 'l') {
@@ -132,10 +168,6 @@ int main ()
 
    printf("Servidor: recebeu conexão de %s, que comecem os jogos!\n", inet_ntoa(enderecoCliente.sin_addr));
 
-
-
-
-
    int direction;
    bool end= FALSE;
 
@@ -171,13 +203,31 @@ int main ()
    char r_direction = 's';
    bool photo, button;
 
+   bool controlChanged = true;
    while (!end) {
-      std::thread tpot(bbb_potentiometer, ref(r_direction));
-      tpot.join();
-      std::thread tldr(bbb_ldr, ref(photo), ref(r_direction));
-      tldr.join();
-      std::thread tbutton(bbb_button, ref(button), ref(r_direction), ref(photo));
-      tbutton.join();
+      if (controlChanged) {
+	      // Update controls
+		  std::stringstream s {mensagem};
+		  // [dir]:char [photo]:bool [button]:bool [end]:bool
+		  std::string temp;
+		  s >> temp;
+		  r_direction = temp[0]; 
+		  s >> temp;
+		  photo = temp == "1";
+		  s >> temp;
+		  button = temp == "1";
+		  s >> temp;
+		  end = temp == "1";
+		  controlChanged = false;
+		  thread t(socketHandler,conexaoClienteId, ref(mensagem), ref(controlChanged));
+		  t.detach();
+	  }
+	  //std::thread tpot(bbb_potentiometer, ref(r_direction));
+      //tpot.join();
+      //std::thread tldr(bbb_ldr, ref(photo), ref(r_direction));
+      //tldr.join();
+      //std::thread tbutton(bbb_button, ref(button), ref(r_direction), ref(photo));
+      //tbutton.join();
       std::thread tgame(game_loop, ref(game), ref(r_direction), ref(photo), ref(button), ref(end));
       tgame.join();
    }
