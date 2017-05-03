@@ -2,6 +2,24 @@ import socket
 import Adafruit_BBIO.GPIO as GPIO
 import Adafruit_BBIO.ADC as ADC
 from time import sleep
+from threading import Thread
+
+HOST = '127.0.0.1'
+PORT = 4325
+tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+dest = (HOST, PORT)
+message = ''
+
+tcp.connect(dest)
+
+class Th(Thread):
+    def __init__ (self, message):
+        Thread.__init__(self)
+        self.message = message
+    def run(self):
+        tcp.send(self.message)
+
+##########################################################
 
 #Button setup
 GPIO.setup("P9_30", GPIO.IN)
@@ -35,11 +53,6 @@ def potenciometer():
 def button():
     return GPIO.input("P9_30")
 
-HOST = '127.0.0.1'
-PORT = 4325
-tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-dest = (HOST, PORT)
-tcp.connect(dest)
 msg = ''
 while msg <> '\x18':
     move = potenciometer()
@@ -55,5 +68,10 @@ while msg <> '\x18':
             msg = 's 0 1'
         else:
             msg = 's 0 0'
-    tcp.send(msg)
+
+    if message <> msg:
+        message = msg;
+        new_thread = Th(message)
+        new_thread.start()
+    
 tcp.close()

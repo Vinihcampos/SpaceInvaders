@@ -27,7 +27,7 @@
 void startMessage ();
 
 //void socketHandler(int socketDescriptor,Mensagem mensagem)
-void socketHandler(int socketDescriptor, std::string & mensagem, bool & controlChanged)
+void socketHandler(int socketDescriptor, char *& mensagem, bool & controlChanged)
 {
     int byteslidos;
 
@@ -40,7 +40,7 @@ void socketHandler(int socketDescriptor, std::string & mensagem, bool & controlC
 
     //receber uma msg do cliente
     //printf("Servidor vai ficar esperando uma mensagem\n");
-    byteslidos = recv(socketDescriptor,&mensagem,sizeof(mensagem),0);
+    byteslidos = recv(socketDescriptor,mensagem,MAXMSG,0);
 
     //printf("byteslidos: %d\n", byteslidos);
 
@@ -95,7 +95,7 @@ void game_loop(game_t * & game, char & r_direction, bool & photo, bool & button,
       }
       
       // ..(4)..
-      if ((rand() % 19813) < 400)
+      if ((rand() % 19813) < 100)
 	 // I create new enemy
 	 game->addEnemy (((rand ())%(COLS)), 1, ((rand())%4));
 
@@ -119,8 +119,11 @@ int main ()
 
    //mensagem enviada pelo cliente
    //Mensagem mensagem;
-   std::string mensagem = "s 0 0";
-
+   char * mensagem = new char[MAXMSG+1];
+   mensagem[0] = 's';
+   mensagem[2] = '0';
+   mensagem[4] = '0';
+   mensagem[1] = mensagem[3] = '0';
    /*
     * Configurações do endereço
    */
@@ -128,7 +131,7 @@ int main ()
    endereco.sin_family = AF_INET;
    endereco.sin_port = htons(PORTNUM);
    //endereco.sin_addr.s_addr = INADDR_ANY;
-   endereco.sin_addr.s_addr = inet_addr("10.7.120.17");
+   endereco.sin_addr.s_addr = inet_addr("192.168.7.1");
 
    /*
     * Criando o Socket
@@ -207,15 +210,10 @@ int main ()
    while (!end) {
       if (controlChanged) {
 	      // Update controls
-		  std::stringstream s {mensagem};
 		  // [dir]:char [photo]:bool [button]:bool 
-		  std::string temp;
-		  s >> temp;
-		  r_direction = temp[0]; 
-		  s >> temp;
-		  photo = temp == "1";
-		  s >> temp;
-		  button = temp == "1";
+		  r_direction = mensagem[0]; 
+		  photo = mensagem[2] == '1';
+		  button = mensagem[4] == '1';
 		  //s >> temp;
 		  //end = temp == "1";
 		  controlChanged = false;
