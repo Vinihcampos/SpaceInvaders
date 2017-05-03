@@ -231,6 +231,7 @@ int main ()
       std::thread tgame(game_loop, ref(game), ref(r_direction), ref(photo), ref(button), ref(end));
       tgame.join();
    }
+   close(conexaoClienteId);
 
    endwin ();
    return 0;
