@@ -208,7 +208,7 @@ int main ()
       if (controlChanged) {
 	      // Update controls
 		  std::stringstream s {mensagem};
-		  // [dir]:char [photo]:bool [button]:bool [end]:bool
+		  // [dir]:char [photo]:bool [button]:bool 
 		  std::string temp;
 		  s >> temp;
 		  r_direction = temp[0]; 
@@ -216,8 +216,8 @@ int main ()
 		  photo = temp == "1";
 		  s >> temp;
 		  button = temp == "1";
-		  s >> temp;
-		  end = temp == "1";
+		  //s >> temp;
+		  //end = temp == "1";
 		  controlChanged = false;
 		  thread t(socketHandler,conexaoClienteId, ref(mensagem), ref(controlChanged));
 		  t.detach();
